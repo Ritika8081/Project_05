@@ -1,6 +1,5 @@
-import { EmotionEntry } from '@/types';
+import { EmotionEntry, Mood } from '@/types';
 import { getTimeOfDay, getDayOfWeek } from './correlations';
-import { Mood } from '@/types';
 
 const DB_NAME = 'emotional-mirror';
 const DB_VERSION = 1;

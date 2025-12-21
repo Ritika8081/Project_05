@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import MoodSelector from '@/components/MoodSelector';
 import TriggerSelector from '@/components/TriggerSelector';
+import ContributorsSelector from '@/components/ContributorsSelector';
 import ReflectionPrompt from '@/components/ReflectionPrompt';
 import JournalInput from '@/components/JournalInput';
 import NavBar from '@/components/NavBar';
@@ -14,6 +15,7 @@ export default function CheckInPage() {
   const router = useRouter();
   const [selectedMood, setSelectedMood] = useState<string | null>(null);
   const [selectedTrigger, setSelectedTrigger] = useState<string | null>(null);
+  const [selectedContributor, setSelectedContributor] = useState<string | null>(null);
   const [journalNote, setJournalNote] = useState('');
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -79,6 +81,7 @@ export default function CheckInPage() {
         date: now.toISOString().split('T')[0],
         mood: selectedMood as any,
         trigger: selectedTrigger as any,
+        contributor: selectedContributor as any,
         timestamp: now.getTime(),
         hour: hour,
         dayOfWeek: dayOfWeek,
@@ -128,7 +131,17 @@ export default function CheckInPage() {
 
           <div className="h-px bg-gradient-to-r from-transparent via-orange-200 to-transparent" />
 
-          <TriggerSelector selectedTrigger={selectedTrigger} onChange={setSelectedTrigger} />
+          {/* Only show triggers for negative emotions: anxious, sad, frustrated */}
+          {selectedMood && ['anxious', 'sad', 'frustrated'].includes(selectedMood) && (
+            <TriggerSelector selectedTrigger={selectedTrigger} onChange={setSelectedTrigger} />
+          )}
+
+          {selectedMood && ['calm', 'neutral'].includes(selectedMood) && (
+            <ContributorsSelector
+              selectedContributor={selectedContributor}
+              onChange={setSelectedContributor}
+            />
+          )}
 
           {/* Show reflection prompts after mood selection */}
           {showReflection && selectedMood && (

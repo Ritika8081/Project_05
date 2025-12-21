@@ -3,12 +3,20 @@ export type Trigger = 'delayed_reply' | 'argument' | 'ignored' | 'overthinking' 
 export type DayOfWeek = 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'Friday' | 'Saturday' | 'Sunday';
 export type TimeOfDay = 'morning' | 'afternoon' | 'evening' | 'night';
 
+export type Contributor = 'break' | 'supported' | 'normal' | 'none';
+
+export interface ContributorOption {
+  value: Contributor;
+  label: string;
+}
+
 export interface EmotionEntry {
   id: string;
   date: string;
   mood: Mood;
   trigger?: Trigger;
   timestamp: number;
+  contributor?: Contributor;
   hour: number; // 0-23
   dayOfWeek: DayOfWeek;
   timeOfDay: TimeOfDay;
