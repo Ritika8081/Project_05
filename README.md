@@ -1,36 +1,297 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🪞 Emotional Mirror
 
-## Getting Started
+A gentle, judgment-free web app designed to help you understand your emotional patterns before blaming others. Built with Next.js, TypeScript, and Tailwind CSS.
 
-First, run the development server:
+**Product North Star:** "Understand yourself first. Relationships change naturally after that."
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## 🎯 Core Concept
+
+People often expect others to change without understanding themselves. **Emotional Mirror** acts as a non-judgmental mirror, reflecting your emotional habits, triggers, and patterns back to you in a gentle, supportive way.
+
+The app helps you:
+- ✨ **Recognize patterns** in your emotions
+- 🔍 **Discover triggers** that affect your mood
+- 📈 **Track your journey** over time
+- 🤝 **Own your growth** with self-awareness
+
+---
+
+## 🚀 Features
+
+### 1. **Daily Micro Check-Ins**
+- Quick, 1-2 tap interactions (no typing)
+- Select your current mood from 5 options:
+  - 😊 Calm
+  - 😐 Neutral
+  - 😟 Anxious
+  - 😞 Sad
+  - 😠 Frustrated
+- Optional trigger selection:
+  - Delayed reply
+  - Argument
+  - Felt ignored
+  - Overthinking
+  - Unknown
+
+### 2. **Emotional Pattern Detection** ⭐ Key USP
+After 5-7 entries, the app generates personalized insights:
+- **Frequency Insights**: "You often feel anxious in your recent check-ins"
+- **Trigger Patterns**: "Delayed replies tend to trigger anxiety"
+- **Emotional Escalation**: "Emotions are building up—consider rest"
+- **Withdrawal Patterns**: "You tend to withdraw when overwhelmed"
+- **Timing Insights**: "Your evenings bring more intensity"
+
+### 3. **Emotional Mirror Insight Screen**
+Displays:
+- Headline: "Here's what your emotions are telling you"
+- 3-5 generated insights with confidence scores
+- Soft reminders: "This is not about blaming yourself. Awareness creates choice."
+
+### 4. **Timeline View**
+Simple vertical timeline showing:
+- Date
+- Mood emoji
+- Trigger label (if selected)
+- Chronological order for easy review
+
+### 5. **Privacy-First & Offline-First**
+- ✅ **All data stored locally** in IndexedDB
+- ✅ **No backend server** required
+- ✅ **No authentication** needed
+- ✅ **Works offline** completely
+- ✅ **Zero cloud tracking**
+
+---
+
+## 🛠 Tech Stack
+
+- **Framework**: Next.js 14+ with App Router
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS (pastel color palette)
+- **Storage**: IndexedDB (browser-based, offline)
+- **Insights**: Rule-based pattern detection (no external AI)
+
+---
+
+## 📦 Project Structure
+
+```
+emotional-mirror/
+├── src/
+│   ├── app/
+│   │   ├── page.tsx              # Landing page
+│   │   ├── check-in/page.tsx     # Daily check-in
+│   │   ├── mirror/page.tsx       # Insights screen
+│   │   ├── timeline/page.tsx     # Timeline view
+│   │   ├── layout.tsx            # Root layout
+│   │   └── globals.css           # Global styles
+│   ├── components/
+│   │   ├── MoodSelector.tsx      # Mood picker component
+│   │   ├── TriggerSelector.tsx   # Trigger picker component
+│   │   ├── InsightCard.tsx       # Insight display card
+│   │   ├── TimelineEntry.tsx     # Timeline item
+│   │   └── NavBar.tsx            # Bottom navigation
+│   ├── types/
+│   │   └── index.ts              # TypeScript types
+│   └── utils/
+│       ├── db.ts                 # IndexedDB wrapper
+│       └── insights.ts           # Insight generation logic
+├── tailwind.config.ts            # Tailwind configuration
+├── next.config.ts                # Next.js configuration
+├── tsconfig.json                 # TypeScript configuration
+└── package.json                  # Dependencies
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+---
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 💾 Data Model
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### EmotionEntry (IndexedDB)
+```typescript
+{
+  id: string                          // Unique identifier
+  date: string                        // ISO date (YYYY-MM-DD)
+  mood: "calm" | "neutral" | "anxious" | "sad" | "frustrated"
+  trigger?: "delayed_reply" | "argument" | "ignored" | "overthinking" | "unknown"
+  timestamp: number                   // Milliseconds since epoch
+}
+```
 
-## Learn More
+---
 
-To learn more about Next.js, take a look at the following resources:
+## 🧠 Insight Generation Logic
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Frequency Analysis
+Detects when certain moods dominate (≥40% of entries):
+- "You often feel anxious" → Suggests pattern awareness
+- "Calm dominates your entries" → Positive affirmation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+### Trigger Co-Occurrence
+Identifies mood-trigger connections (≥3 occurrences):
+- If "delayed_reply" + "anxious" appears ≥3 times:
+  → "Delayed replies often trigger anxious feelings"
 
-## Deploy on Vercel
+### Pattern Detection
+- **Escalation**: Detects emotional buildup over recent days
+- **Withdrawal**: Identifies anxiety → sadness transitions
+- "You tend to withdraw when overwhelmed"
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Timing Insights
+Analyzes emotional intensity by time of day:
+- Morning, afternoon, or evening patterns
+- "Your evenings often bring more intensity"
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 🎨 Design Philosophy
+
+### Emotional Safety
+- **Calm colors**: Pastel blues, roses, purples, ambers
+- **Rounded cards**: Soft, approachable UI
+- **No red alerts**: No judgmental language
+- **Encouraging copy**: "It's okay to notice patterns"
+
+### Micro-Copy Examples
+- "You're learning about yourself"
+- "This is not about blaming yourself"
+- "Awareness creates choice"
+- "It's okay to feel this"
+- "Understanding comes before change"
+
+---
+
+## 🚀 Getting Started
+
+### Installation
+
+```bash
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+### Building for Production
+
+```bash
+npm run build
+npm start
+```
+
+---
+
+## 📱 Page Guide
+
+### Home Page (`/`)
+- Welcoming landing screen
+- Explains the app's purpose
+- "Start Your Check-In" CTA button
+
+### Check-In Page (`/check-in`)
+- Mood selector (5 options)
+- Optional trigger selector
+- Save functionality
+- Once-per-day check indicator
+
+### Mirror Page (`/mirror`)
+- Shows generated insights (after 5+ entries)
+- Displays confidence scores
+- Emotional safety reminders
+- Progress bar for new users
+
+### Timeline Page (`/timeline`)
+- Chronological list of all entries
+- Mood emoji + trigger labels
+- Entry count display
+- Clear history option
+
+---
+
+## 🔐 Privacy & Data
+
+- **✅ Your data is yours**: Stored entirely on your device
+- **✅ No servers**: This is a frontend-only app
+- **✅ No tracking**: No analytics, no third-party scripts
+- **✅ Works offline**: Everything happens locally
+- **✅ Portable**: Export/backup via browser DevTools (IndexedDB)
+
+---
+
+## 🤝 Emotional Logic Examples
+
+### Scenario 1: Building Awareness
+After 5 entries with "anxious" mood and "delayed_reply" trigger appearing 3 times:
+```
+Insight Generated:
+"Delayed replies often trigger anxious feelings. 
+Noticing this connection gives you choices."
+```
+
+### Scenario 2: Withdrawal Pattern
+Timeline shows: Anxious → Anxious → Sad → Calm
+```
+Insight Generated:
+"You tend to withdraw when overwhelmed. 
+This is a natural protection mechanism. 
+Self-compassion is key here."
+```
+
+### Scenario 3: Timing Pattern
+Evening check-ins consistently show frustrated/anxious moods:
+```
+Insight Generated:
+"Your evenings often bring more intensity. 
+What's happening then? Is it routine, 
+relationships, or energy levels?"
+```
+
+---
+
+## 🚫 What This App Does NOT Do
+
+- ❌ Replace therapy or professional help
+- ❌ Predict future behavior
+- ❌ Make relationship diagnoses
+- ❌ Use AI/ML for mood predictions
+- ❌ Store data in the cloud
+- ❌ Require authentication
+- ❌ Show astrology or personality labels
+
+---
+
+## 🎯 Philosophy
+
+This app operates on a simple truth:
+
+> **Most relationship conflicts aren't caused by the other person. They're caused by our unmet expectations, unprocessed emotions, and unexamined patterns.**
+
+By helping you see your own patterns first, you're not blaming yourself—you're taking responsibility. And taking responsibility is the foundation of all healthy change.
+
+---
+
+## 💡 Future Enhancements (Not Implemented)
+
+- Export insights as PDF
+- Multi-language support
+- Mood trend charts
+- Custom mood labels
+- Integration with journaling
+
+---
+
+## 📝 License
+
+This project is open source and available under the MIT License.
+
+---
+
+## 🙏 Support
+
+Have questions or ideas? This is a frontend-only app, so all data stays with you. Feel free to use it as a foundation for your own emotional awareness journey.
+
+**Remember**: Understanding yourself first. Relationships change naturally after that. 💚
