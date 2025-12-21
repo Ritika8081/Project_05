@@ -5,11 +5,16 @@ import NavBar from '@/components/NavBar';
 import InsightCard from '@/components/InsightCard';
 import { getAllEmotionEntries } from '@/utils/db';
 import { generateInsights } from '@/utils/insights';
+import { generateWeeklySummary, generateWeeklySummaryText, WeeklySummary } from '@/utils/weeklySummary';
+import { calculateStreaks, generateMilestones, getStreakMessage, getCalmStreakMessage, StreakData, Milestone } from '@/utils/streaks';
 import { EmotionEntry, Insight } from '@/types';
 
 export default function MirrorPage() {
   const [insights, setInsights] = useState<Insight[]>([]);
   const [entries, setEntries] = useState<EmotionEntry[]>([]);
+  const [weeklySummary, setWeeklySummary] = useState<WeeklySummary | null>(null);
+  const [streaks, setStreaks] = useState<StreakData | null>(null);
+  const [milestones, setMilestones] = useState<Milestone[]>([]);
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -26,6 +31,21 @@ export default function MirrorPage() {
       if (allEntries.length >= 5) {
         const generatedInsights = generateInsights(allEntries);
         setInsights(generatedInsights);
+      }
+
+      // Generate weekly summary
+      if (allEntries.length >= 3) {
+        const summary = generateWeeklySummary(allEntries);
+        setWeeklySummary(summary);
+      }
+
+      // Calculate streaks and milestones
+      if (allEntries.length > 0) {
+        const streakData = calculateStreaks(allEntries);
+        setStreaks(streakData);
+        
+        const achievedMilestones = generateMilestones(allEntries, streakData);
+        setMilestones(achievedMilestones);
       }
     } catch (error) {
       console.error('Error loading insights:', error);
@@ -63,6 +83,103 @@ export default function MirrorPage() {
           </div>
         ) : (
           <>
+            {/* Weekly Summary */}
+            {weeklySummary && (
+              <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-lg border border-purple-200/50 mb-4 sm:mb-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-2xl">📊</span>
+                  <h2 className="text-sm sm:text-base font-bold text-purple-900">This Week's Story</h2>
+                </div>
+                <p className="text-xs sm:text-sm text-purple-900 leading-relaxed">
+                  {generateWeeklySummaryText(weeklySummary)}
+                </p>
+                <div className="mt-3 flex items-center gap-2">
+                  <div className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                    weeklySummary.trendDirection === 'improving' 
+                      ? 'bg-green-100 text-green-800' 
+                      : weeklySummary.trendDirection === 'stable'
+                      ? 'bg-blue-100 text-blue-800'
+                      : 'bg-amber-100 text-amber-800'
+                  }`}>
+                    {weeklySummary.trendDirection === 'improving' && '📈 Improving'}
+                    {weeklySummary.trendDirection === 'stable' && '➡️ Stable'}
+                    {weeklySummary.trendDirection === 'challenging' && '💪 Processing'}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Streaks */}
+            {streaks && (
+              <div className="bg-gradient-to-br from-orange-50 to-amber-50 rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-lg border border-orange-200/50 mb-4 sm:mb-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-2xl">🔥</span>
+                  <h2 className="text-sm sm:text-base font-bold text-orange-900">Your Momentum</h2>
+                </div>
+                <div className="space-y-2">
+                  <div className="bg-white/60 rounded-lg p-3">
+                    <p className="text-xs sm:text-sm font-semibold text-orange-900 mb-1">
+                      {getStreakMessage(streaks)}
+                    </p>
+                    {streaks.currentCheckInStreak > 0 && (
+                      <p className="text-xs text-orange-700">
+                        {streaks.longestCheckInStreak > streaks.currentCheckInStreak && 
+                          `Personal best: ${streaks.longestCheckInStreak} days`
+                        }
+                      </p>
+                    )}
+                  </div>
+                  {streaks.currentCalmStreak > 0 && getCalmStreakMessage(streaks) && (
+                    <div className="bg-white/60 rounded-lg p-3">
+                      <p className="text-xs sm:text-sm font-semibold text-green-900">
+                        {getCalmStreakMessage(streaks)}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* Milestones */}
+            {milestones.length > 0 && (
+              <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-lg border border-blue-200/50 mb-4 sm:mb-5">
+                <div className="flex items-center gap-2 mb-3">
+                  <span className="text-2xl">🏆</span>
+                  <h2 className="text-sm sm:text-base font-bold text-blue-900">Milestones</h2>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
+                  {milestones.slice(0, 6).map(milestone => (
+                    <div
+                      key={milestone.id}
+                      className={`rounded-lg p-2 sm:p-3 border-2 transition-all ${
+                        milestone.achieved
+                          ? 'bg-white border-blue-300 shadow-sm'
+                          : 'bg-gray-50 border-gray-200 opacity-60'
+                      }`}
+                    >
+                      <div className="text-xl sm:text-2xl mb-1 text-center">{milestone.icon}</div>
+                      <p className="text-xs font-semibold text-center text-gray-900 leading-tight">
+                        {milestone.title}
+                      </p>
+                      {!milestone.achieved && milestone.progress !== undefined && milestone.total && (
+                        <div className="mt-1.5">
+                          <div className="w-full bg-gray-200 rounded-full h-1">
+                            <div
+                              className="bg-blue-500 h-1 rounded-full transition-all"
+                              style={{ width: `${(milestone.progress / milestone.total) * 100}%` }}
+                            />
+                          </div>
+                          <p className="text-[10px] text-gray-600 text-center mt-0.5">
+                            {milestone.progress}/{milestone.total}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <div className="bg-gradient-to-r from-rose-100/60 to-orange-100/60 rounded-lg sm:rounded-xl p-3 sm:p-4 shadow-sm border border-rose-200/50 mb-4 sm:mb-5">
               <p className="text-orange-900 text-xs sm:text-sm text-center italic font-medium">
                 "Awareness creates choice."

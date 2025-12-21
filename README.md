@@ -43,20 +43,82 @@ After 5-7 entries, the app generates personalized insights:
 - **Withdrawal Patterns**: "You tend to withdraw when overwhelmed"
 - **Timing Insights**: "Your evenings bring more intensity"
 
-### 3. **Emotional Mirror Insight Screen**
+### 3. **Weekly Emotional Summary** 🆕 **Phase 2**
+Text-based weekly analysis that feels "AI-powered":
+- Dominant mood percentage
+- Peak challenging days and times
+- Calm periods identification
+- Recovery pattern recognition
+- Growth tracking with empathetic tone
+- Trend direction (improving/stable/challenging)
+
+**Example Output:**
+> "This week you felt calm about 60% of the time. You found the most peace in the mornings (75% calm). Challenging moments peaked on Monday evenings & Thursday afternoons. You recovered quickly from difficult moments — that's real growth. You showed up consistently this week. Your emotional baseline is lifting — that's meaningful progress."
+
+### 4. **Mood Streaks & Milestones** 🆕 **Phase 2**
+Gamification without pressure, using positive language:
+- **Daily check-in streak**: Tracks consecutive days
+- **Calm mood streak**: Celebrates peaceful moments
+- **Recovery streak**: Recognizes bouncing back
+- **Achievement milestones**:
+  - 🌱 First Step (first check-in)
+  - 📅 7 Days of Awareness
+  - 🎯 30 check-ins milestone
+  - 🔍 First trigger identified
+  - 🔥 7-day streak
+  - 🌊 5 consecutive calm moments
+  - 💪 Resilient recovery
+  - ✍️ First journal entry
+
+**Key Feature**: No "you failed" language—only "You can restart anytime"
+
+### 5. **Reflection Prompts & Journaling** 🆕 **Phase 1.5**
+Guided introspection after check-ins:
+- Mood-specific reflection questions
+- Smart emotional quotes matching your state
+- Optional micro-journaling (500 chars)
+- Questions like:
+  - Anxious: "What triggered this? What do you need?"
+  - Calm: "What helped you feel this way?"
+  - Sad: "What loss are you grieving right now?"
+
+### 6. **Time-Block Heatmap** 🆕 **Phase 2**
+Simplified 4×7 visualization (Morning/Afternoon/Evening/Night × Days):
+- Instant pattern revelation: "This explains a LOT"
+- Color-coded mood intensity
+- Easier to read than 24-hour breakdown
+- Shows when you need support most
+
+### 7. **Emotional Mirror Insight Screen**
 Displays:
-- Headline: "Here's what your emotions are telling you"
+- Weekly emotional summary (3+ entries)
+- Current streaks and momentum
+- Achievement milestones with progress
 - 3-5 generated insights with confidence scores
 - Soft reminders: "This is not about blaming yourself. Awareness creates choice."
 
-### 4. **Timeline View**
+### 8. **Timeline View**
 Simple vertical timeline showing:
 - Date
 - Mood emoji
 - Trigger label (if selected)
 - Chronological order for easy review
 
-### 5. **Privacy-First & Offline-First**
+### 9. **Journal View**
+Browse all journal entries with notes:
+- Mood context for each entry
+- Full journal text display
+- Optional reflection responses
+- Trigger labels
+
+### 10. **Mood Correlation Analytics**
+Advanced pattern detection:
+- 24-hour × 7-day detailed heatmap
+- Emotional hotspots (top 10 intense mood-time combos)
+- Time-of-day correlation insights
+- Weekday vs weekend patterns
+
+### 11. **Privacy-First & Offline-First**
 - ✅ **All data stored locally** in IndexedDB
 - ✅ **No backend server** required
 - ✅ **No authentication** needed
@@ -82,22 +144,33 @@ emotional-mirror/
 ├── src/
 │   ├── app/
 │   │   ├── page.tsx              # Landing page
-│   │   ├── check-in/page.tsx     # Daily check-in
-│   │   ├── mirror/page.tsx       # Insights screen
+│   │   ├── check-in/page.tsx     # Daily check-in with reflection
+│   │   ├── mirror/page.tsx       # Insights + summary + streaks
 │   │   ├── timeline/page.tsx     # Timeline view
+│   │   ├── correlations/page.tsx # Mood pattern heatmaps
+│   │   ├── journal/page.tsx      # Journal entries view
 │   │   ├── layout.tsx            # Root layout
 │   │   └── globals.css           # Global styles
 │   ├── components/
 │   │   ├── MoodSelector.tsx      # Mood picker component
 │   │   ├── TriggerSelector.tsx   # Trigger picker component
+│   │   ├── ReflectionPrompt.tsx  # Mood-specific questions
+│   │   ├── JournalInput.tsx      # Optional note input
 │   │   ├── InsightCard.tsx       # Insight display card
 │   │   ├── TimelineEntry.tsx     # Timeline item
+│   │   ├── MoodHeatmap.tsx       # 24×7 detailed heatmap
+│   │   ├── TimeBlockHeatmap.tsx  # 4×7 simplified heatmap
 │   │   └── NavBar.tsx            # Bottom navigation
 │   ├── types/
 │   │   └── index.ts              # TypeScript types
 │   └── utils/
 │       ├── db.ts                 # IndexedDB wrapper
-│       └── insights.ts           # Insight generation logic
+│       ├── insights.ts           # Insight generation logic
+│       ├── weeklySummary.ts      # Weekly analysis 🆕
+│       ├── streaks.ts            # Streaks & milestones 🆕
+│       ├── reflections.ts        # Reflection prompts 🆕
+│       ├── correlations.ts       # Time-based patterns
+│       └── migration.ts          # Data migration
 ├── tailwind.config.ts            # Tailwind configuration
 ├── next.config.ts                # Next.js configuration
 ├── tsconfig.json                 # TypeScript configuration
@@ -116,6 +189,11 @@ emotional-mirror/
   mood: "calm" | "neutral" | "anxious" | "sad" | "frustrated"
   trigger?: "delayed_reply" | "argument" | "ignored" | "overthinking" | "unknown"
   timestamp: number                   // Milliseconds since epoch
+  hour: number                        // 0-23 (for correlations)
+  dayOfWeek: DayOfWeek               // Monday-Sunday
+  timeOfDay: TimeOfDay               // morning/afternoon/evening/night
+  notes?: string                      // Optional journal entry (500 chars)
+  reflection?: string                 // Optional reflection response
 }
 ```
 
@@ -191,18 +269,37 @@ npm start
 - Welcoming landing screen
 - Explains the app's purpose
 - "Start Your Check-In" CTA button
+- Fully responsive design
 
 ### Check-In Page (`/check-in`)
 - Mood selector (5 options)
 - Optional trigger selector
-- Save functionality
+- Mood-specific reflection prompts 🆕
+- Optional journaling (500 chars) 🆕
+- Two-step flow: mood selection → reflection → save
 - Once-per-day check indicator
 
 ### Mirror Page (`/mirror`)
-- Shows generated insights (after 5+ entries)
+- Weekly emotional summary 🆕
+- Current streaks & momentum 🆕
+- Achievement milestones 🆕
+- Generated insights (after 5+ entries)
 - Displays confidence scores
 - Emotional safety reminders
 - Progress bar for new users
+
+### Correlations Page (`/correlations`)
+- Simplified 4×7 time-block heatmap 🆕
+- Detailed 24×7 hour-by-hour heatmap
+- Emotional hotspots (top 10)
+- Pattern insights text
+
+### Journal Page (`/journal`) 🆕
+- Browse all journal entries
+- Mood context with emoji
+- Full note text display
+- Trigger labels
+- Reflection responses
 
 ### Timeline Page (`/timeline`)
 - Chronological list of all entries

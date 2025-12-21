@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import MoodHeatmap from '@/components/MoodHeatmap';
+import TimeBlockHeatmap from '@/components/TimeBlockHeatmap';
 import { getAllEmotionEntries } from '@/utils/db';
 import { buildHeatmapData, generateCorrelationInsights, calculateHotspots } from '@/utils/correlations';
 import { migrateEntries } from '@/utils/migration';
@@ -135,8 +136,21 @@ export default function CorrelationsPage() {
               </div>
             )}
 
+            {/* Simplified Time Block Heatmap */}
+            <div className="bg-gradient-to-br from-white/90 to-blue-50/80 rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-lg border border-blue-200/50 mb-4 sm:mb-5">
+              <div className="mb-3 sm:mb-4">
+                <h2 className="font-semibold text-blue-900 text-sm sm:text-base mb-1">🌅 Quick View: When Do You Feel What?</h2>
+                <p className="text-xs text-blue-700">Simplified view by time of day</p>
+              </div>
+              <TimeBlockHeatmap entries={entries} />
+            </div>
+
+            {/* Detailed 24/7 Heatmap */}
             <div className="bg-gradient-to-br from-white/90 to-orange-50/80 rounded-xl sm:rounded-2xl p-3 sm:p-4 shadow-lg border border-orange-200/50 mb-4 sm:mb-5">
-              <h2 className="font-semibold text-orange-900 text-sm sm:text-base mb-3 sm:mb-4">📅 24/7 Mood Heatmap</h2>
+              <div className="mb-3 sm:mb-4">
+                <h2 className="font-semibold text-orange-900 text-sm sm:text-base mb-1">📅 Detailed 24/7 Mood Heatmap</h2>
+                <p className="text-xs text-orange-700">Hour-by-hour breakdown</p>
+              </div>
               {heatmapData && <MoodHeatmap data={heatmapData} />}
             </div>
 
