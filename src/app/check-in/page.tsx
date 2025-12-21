@@ -7,7 +7,7 @@ import TriggerSelector from '@/components/TriggerSelector';
 import ReflectionPrompt from '@/components/ReflectionPrompt';
 import JournalInput from '@/components/JournalInput';
 import NavBar from '@/components/NavBar';
-import { saveEmotionEntry, getTodayEntry } from '@/utils/db';
+import { saveEmotionEntry, getTodaysEntries, detectRecovery, canCreateNewEntry } from '@/utils/db';
 import { EmotionEntry, TimeOfDay, DayOfWeek } from '@/types';
 
 export default function CheckInPage() {
@@ -17,22 +17,21 @@ export default function CheckInPage() {
   const [journalNote, setJournalNote] = useState('');
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [todayChecked, setTodayChecked] = useState(false);
   const [showReflection, setShowReflection] = useState(false);
+  const [todaysCheckIns, setTodaysCheckIns] = useState(0);
+  const [spamWarning, setSpamWarning] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    checkTodayEntry();
+    loadTodaysCheckIns();
   }, []);
 
-  const checkTodayEntry = async () => {
+  const loadTodaysCheckIns = async () => {
     try {
-      const todayEntry = await getTodayEntry();
-      if (todayEntry) {
-        setTodayChecked(true);
-      }
+      const entries = await getTodaysEntries();
+      setTodaysCheckIns(entries.length);
     } catch (error) {
-      console.error('Error checking today entry:', error);
+      console.error('Error loading check-ins:', error);
     }
   };
 
@@ -45,6 +44,14 @@ export default function CheckInPage() {
     // Show reflection prompt after mood selection
     if (!showReflection) {
       setShowReflection(true);
+      return;
+    }
+
+    // Check spam prevention
+    const canCreate = await canCreateNewEntry();
+    if (!canCreate) {
+      setSpamWarning(true);
+      setTimeout(() => setSpamWarning(false), 3000);
       return;
     }
 
@@ -64,6 +71,9 @@ export default function CheckInPage() {
         return 'night';
       };
 
+      // Detect recovery from previous moods
+      const recovery = await detectRecovery(selectedMood as any);
+
       const entry: EmotionEntry = {
         id: `emotion-${Date.now()}`,
         date: now.toISOString().split('T')[0],
@@ -74,10 +84,13 @@ export default function CheckInPage() {
         dayOfWeek: dayOfWeek,
         timeOfDay: getTimeOfDay(hour),
         notes: journalNote || undefined,
+        recoveryStartMood: recovery.recoveryStartMood,
+        recoveryStartTime: recovery.recoveryStartTime,
+        recoveryDuration: recovery.recoveryDuration,
       };
 
       await saveEmotionEntry(entry);
-      setTodayChecked(true);
+      setTodaysCheckIns(todaysCheckIns + 1);
 
       setTimeout(() => {
         router.push('/mirror');
@@ -96,13 +109,21 @@ export default function CheckInPage() {
     <div className="flex flex-col h-screen w-screen overflow-hidden">
       <main className="flex-1 px-3 sm:px-4 md:px-6 py-3 sm:py-5 max-w-3xl md:max-w-4xl mx-auto w-full overflow-y-auto overflow-x-hidden pb-24 sm:pb-28">
         <div className="text-center mb-4 sm:mb-5">
-          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-orange-900 mb-1">Daily Check-In</h1>
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-orange-900 mb-1">How Are You Feeling?</h1>
           <p className="text-orange-800/70 text-xs sm:text-sm">
-            {todayChecked ? "You've checked in today. Update anytime." : 'How are you feeling?'}
+            {todaysCheckIns === 0 
+              ? 'Check in anytime. Your awareness is building resilience.' 
+              : `You've checked in ${todaysCheckIns} time${todaysCheckIns === 1 ? '' : 's'} today. Update anytime.`}
           </p>
         </div>
 
         <div className="bg-gradient-to-br from-white/90 to-orange-50/80 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 shadow-lg border border-orange-200/50 space-y-4 sm:space-y-5">
+          {spamWarning && (
+            <div className="bg-amber-100 border border-amber-300 text-amber-800 px-4 py-3 rounded-lg text-sm">
+              ⏱️ Please wait 30 seconds between check-ins to prevent spam logging.
+            </div>
+          )}
+          
           <MoodSelector selectedMood={selectedMood} onChange={setSelectedMood} />
 
           <div className="h-px bg-gradient-to-r from-transparent via-orange-200 to-transparent" />

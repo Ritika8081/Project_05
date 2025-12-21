@@ -14,6 +14,9 @@ export interface EmotionEntry {
   timeOfDay: TimeOfDay;
   notes?: string; // optional journal entry
   reflection?: string; // optional reflection response
+  recoveryStartMood?: Mood; // what mood triggered this recovery?
+  recoveryStartTime?: number; // when did the challenge start?
+  recoveryDuration?: number; // milliseconds to recover
 }
 
 export interface MoodOption {

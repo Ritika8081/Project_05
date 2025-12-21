@@ -3,10 +3,12 @@
 import { useState, useEffect } from 'react';
 import NavBar from '@/components/NavBar';
 import InsightCard from '@/components/InsightCard';
+import { ResilienceCard } from '@/components/ResilienceCard';
 import { getAllEmotionEntries } from '@/utils/db';
 import { generateInsights } from '@/utils/insights';
 import { generateWeeklySummary, generateWeeklySummaryText, WeeklySummary } from '@/utils/weeklySummary';
 import { calculateStreaks, generateMilestones, getStreakMessage, getCalmStreakMessage, StreakData, Milestone } from '@/utils/streaks';
+import { calculateResilienceMetrics, ResilienceMetrics } from '@/utils/resilience';
 import { EmotionEntry, Insight } from '@/types';
 
 export default function MirrorPage() {
@@ -15,6 +17,7 @@ export default function MirrorPage() {
   const [weeklySummary, setWeeklySummary] = useState<WeeklySummary | null>(null);
   const [streaks, setStreaks] = useState<StreakData | null>(null);
   const [milestones, setMilestones] = useState<Milestone[]>([]);
+  const [resilienceMetrics, setResilienceMetrics] = useState<ResilienceMetrics | null>(null);
   const [mounted, setMounted] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -46,6 +49,10 @@ export default function MirrorPage() {
         
         const achievedMilestones = generateMilestones(allEntries, streakData);
         setMilestones(achievedMilestones);
+        
+        // Calculate resilience metrics
+        const metrics = await calculateResilienceMetrics();
+        setResilienceMetrics(metrics);
       }
     } catch (error) {
       console.error('Error loading insights:', error);
@@ -83,6 +90,13 @@ export default function MirrorPage() {
           </div>
         ) : (
           <>
+            {/* Resilience Card */}
+            {resilienceMetrics && (
+              <div className="mb-4 sm:mb-5">
+                <ResilienceCard metrics={resilienceMetrics} />
+              </div>
+            )}
+
             {/* Weekly Summary */}
             {weeklySummary && (
               <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl sm:rounded-2xl p-4 sm:p-5 shadow-lg border border-purple-200/50 mb-4 sm:mb-5">
