@@ -20,20 +20,20 @@ The app helps you:
 
 ## 🚀 Features
 
-### 1. **Daily Micro Check-Ins**
+### 1. **Anytime Check-Ins**
 - Quick, 1-2 tap interactions (no typing)
+- Unlimited check-ins per day with a gentle 30s throttle
 - Select your current mood from 5 options:
   - 😊 Calm
   - 😐 Neutral
   - 😟 Anxious
   - 😞 Sad
   - 😠 Frustrated
-- Optional trigger selection:
-  - Delayed reply
-  - Argument
-  - Felt ignored
-  - Overthinking
-  - Unknown
+- Emotion-aware follow-ups:
+  - For negative moods (Anxious/Sad/Frustrated): "What triggered it?" (optional)
+    - Delayed reply, Argument, Felt ignored, Overthinking, Unknown
+  - For Calm/Neutral: "What contributed to this feeling?" (optional)
+    - Took a break, Felt supported, Things felt normal, Nothing specific
 
 ### 2. **Emotional Pattern Detection** ⭐ Key USP
 After 5-7 entries, the app generates personalized insights:
@@ -119,6 +119,13 @@ Advanced pattern detection:
 - Weekday vs weekend patterns
 
 ### 11. **Privacy-First & Offline-First**
+
+### 12. **Emotional Resilience Tracking** 🆕
+Measures recovery speed from challenging to calmer states:
+- Average recovery time and fastest recovery
+- Day-based resilience streaks (days with at least one recovery)
+- Week-over-week recovery speed change
+- Insightful, compassionate messaging
 - ✅ **All data stored locally** in IndexedDB
 - ✅ **No backend server** required
 - ✅ **No authentication** needed
@@ -154,9 +161,11 @@ emotional-mirror/
 │   ├── components/
 │   │   ├── MoodSelector.tsx      # Mood picker component
 │   │   ├── TriggerSelector.tsx   # Trigger picker component
+│   │   ├── ContributorsSelector.tsx # Calm/Neutral contributors prompt 🆕
 │   │   ├── ReflectionPrompt.tsx  # Mood-specific questions
 │   │   ├── JournalInput.tsx      # Optional note input
 │   │   ├── InsightCard.tsx       # Insight display card
+│   │   ├── ResilienceCard.tsx    # Recovery metrics display 🆕
 │   │   ├── TimelineEntry.tsx     # Timeline item
 │   │   ├── MoodHeatmap.tsx       # 24×7 detailed heatmap
 │   │   ├── TimeBlockHeatmap.tsx  # 4×7 simplified heatmap
@@ -170,6 +179,7 @@ emotional-mirror/
 │       ├── streaks.ts            # Streaks & milestones 🆕
 │       ├── reflections.ts        # Reflection prompts 🆕
 │       ├── correlations.ts       # Time-based patterns
+│       ├── resilience.ts         # Recovery metrics & insights 🆕
 │       └── migration.ts          # Data migration
 ├── tailwind.config.ts            # Tailwind configuration
 ├── next.config.ts                # Next.js configuration
@@ -188,12 +198,16 @@ emotional-mirror/
   date: string                        // ISO date (YYYY-MM-DD)
   mood: "calm" | "neutral" | "anxious" | "sad" | "frustrated"
   trigger?: "delayed_reply" | "argument" | "ignored" | "overthinking" | "unknown"
+  contributor?: "break" | "supported" | "normal" | "none" // Calm/Neutral contributors
   timestamp: number                   // Milliseconds since epoch
   hour: number                        // 0-23 (for correlations)
   dayOfWeek: DayOfWeek               // Monday-Sunday
   timeOfDay: TimeOfDay               // morning/afternoon/evening/night
   notes?: string                      // Optional journal entry (500 chars)
   reflection?: string                 // Optional reflection response
+  recoveryStartMood?: Mood            // Mood at start of recovery (e.g., anxious)
+  recoveryStartTime?: number          // Timestamp when challenging mood was logged
+  recoveryDuration?: number           // Milliseconds to reach calmer state
 }
 ```
 
@@ -260,6 +274,32 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 npm run build
 npm start
 ```
+---
+
+## 🤝 Contributing
+
+We welcome thoughtful, empathetic contributions that keep the app gentle and privacy-first.
+
+- Setup: `npm install`, then `npm run dev`
+- Branching: `feat/…`, `fix/…`, `docs/…`
+- Commits: Use clear messages (e.g., `feat: contributors prompt for Calm/Neutral`)
+- Style: TypeScript, React functional components, Tailwind utilities
+- Scope: Prefer small, focused PRs; avoid introducing trackers or server dependencies
+
+### PR Checklist
+- Adds or updates tests where practical
+- Passes TypeScript build locally (`npm run build`)
+- Keeps components responsive and accessible
+- Updates README if user-facing behavior changes
+
+### Quick Contribution Ideas
+- Add new reflection prompts per mood
+- Improve resilience insights copy
+- Add more contributor options for Calm/Neutral
+- Enhance heatmap readability on small screens
+
+Thank you for designing with empathy 🌱
+
 
 ---
 
@@ -273,11 +313,13 @@ npm start
 
 ### Check-In Page (`/check-in`)
 - Mood selector (5 options)
-- Optional trigger selector
+- Emotion-aware follow-ups
+  - Negative moods → "What triggered it?" (optional)
+  - Calm/Neutral → "What contributed to this feeling?" (optional)
 - Mood-specific reflection prompts 🆕
 - Optional journaling (500 chars) 🆕
 - Two-step flow: mood selection → reflection → save
-- Once-per-day check indicator
+- Unlimited check-ins with gentle 30-second throttle 🆕
 
 ### Mirror Page (`/mirror`)
 - Weekly emotional summary 🆕
