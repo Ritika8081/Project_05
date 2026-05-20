@@ -50,7 +50,7 @@ export default function JournalPage() {
   };
 
   return (
-    <div className="flex flex-col h-screen w-screen overflow-hidden bg-gradient-to-br from-amber-50 via-orange-50 to-rose-50">
+    <div className="flex flex-col h-screen w-screen overflow-hidden">
       <main className="flex-1 px-3 sm:px-4 md:px-6 py-3 sm:py-5 max-w-3xl md:max-w-4xl mx-auto w-full overflow-y-auto overflow-x-hidden pb-24 sm:pb-28">
         <div className="text-center mb-4 sm:mb-6">
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-orange-900 mb-1">Your Journal</h1>

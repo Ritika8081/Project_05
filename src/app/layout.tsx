@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import VantaBackground from "@/components/VantaBackground";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,9 +32,10 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-hidden bg-gradient-to-br from-slate-50 via-orange-50 to-rose-50`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-hidden`}
       >
-        <div className="flex flex-col h-screen w-screen overflow-hidden">
+        <VantaBackground />
+        <div className="flex flex-col h-screen w-screen overflow-hidden relative z-10">
           {children}
         </div>
       </body>
